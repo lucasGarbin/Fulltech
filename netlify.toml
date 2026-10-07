@@ -1,0 +1,15 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  VITE_SUPABASE_URL = "https://lwiazqxpaqujvuvmghvq.supabase.co"
+  VITE_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_YWdMMM40PFhKS5GLmMGqAQ_a9IdhfHJ"
+
+# O Vite gera arquivos em dist/. Rotas do app (/admin, /catalogos) precisam
+# cair no index.html; arquivos reais continuam sendo servidos antes deste redirect.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
