@@ -1,5 +1,6 @@
-/* Cliente do backend Node (Nodemailer + Gmail SMTP) para contato e chamados.
-   URL da API: variável VITE_API_URL (ver .env.example); por omissão http://localhost:5000 */
+/* Contato ainda usa o backend Node. O chamado técnico vai para a Edge Function do Supabase. */
+import { supabase } from "./supabase";
+
 export const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/+$/, "");
 const TIMEOUT_MS = 30000;
 
@@ -45,14 +46,57 @@ export function sendContactForm({ nome, email, assunto, mensagem }) {
   return post("/api/contato", { nome, email, assunto, mensagem }, true);
 }
 
-/* Chamado técnico → multipart/form-data (campos + ficheiro "nota").
+const MAX_CHAMADO_ANEXO = 4 * 1024 * 1024;
+
+function toBase64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(binary);
+}
+
+async function readFunctionError(error) {
+  const status = error?.context?.status || 0;
+  try {
+    const body = typeof error?.context?.json === "function" ? await error.context.json() : null;
+    return { status, message: body?.message || "", errors: body?.errors };
+  } catch {
+    return { status, message: "" };
+  }
+}
+
+/* Chamado técnico → Edge Function do Supabase, que envia o e-mail para o contato da empresa.
    Devolve { ok, protocolo } */
-export function sendSupportForm(values, formEl) {
-  const fd = new FormData();
-  Object.entries(values).forEach(([k, v]) => fd.append(k, String(v ?? "").trim()));
+export async function sendSupportForm(values, formEl) {
+  const body = {};
+  Object.entries(values).forEach(([key, value]) => {
+    body[key] = String(value ?? "").trim();
+  });
+
   const file = formEl?.elements?.nota?.files?.[0];
-  if (file) fd.append("nota", file, file.name);
-  return post("/api/chamado", fd, false);
+  if (file) {
+    if (file.size > MAX_CHAMADO_ANEXO) {
+      throw new ApiError("O anexo é demasiado grande (máx. 4 MB).", { status: 413 });
+    }
+    body.anexo = {
+      name: file.name,
+      type: file.type || "application/octet-stream",
+      data: toBase64(await file.arrayBuffer()),
+    };
+  }
+
+  const { data, error } = await supabase.functions.invoke("chamado", { body });
+  if (error) {
+    const payload = await readFunctionError(error);
+    throw new ApiError(payload.message || "Não foi possível enviar agora.", {
+      status: payload.status || 502,
+      fieldErrors: payload.errors,
+    });
+  }
+  if (!data?.protocolo) throw new ApiError("Não foi possível enviar agora.", { status: 502 });
+  return data;
 }
 
 /* Mensagem amigável para cada tipo de falha */
@@ -63,7 +107,7 @@ export function getEmailErrorMessage(err) {
       : "Não foi possível ligar ao servidor. Verifique a ligação e tente novamente.";
   }
   if (err?.status === 400 && err.message) return err.message;
-  if (err?.status === 413) return "O anexo é demasiado grande (máx. 10 MB).";
+  if (err?.status === 413) return err.message || "O anexo é demasiado grande (máx. 10 MB).";
   if (err?.status === 429) return "Demasiados pedidos. Tente novamente dentro de instantes.";
   if (err?.status === 503) return "Envio de e-mail indisponível no momento. Ligue para nós.";
   return "Não foi possível enviar agora. Tente novamente ou ligue para nós.";
