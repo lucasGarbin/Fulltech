@@ -1,0 +1,12 @@
+import { useEffect, useState } from "react";
+
+/* Rota por hash (#/admin) sem instalar react-router */
+export default function useHash() {
+  const [hash, setHash] = useState(window.location.hash);
+  useEffect(() => {
+    const onChange = () => setHash(window.location.hash);
+    window.addEventListener("hashchange", onChange);
+    return () => window.removeEventListener("hashchange", onChange);
+  }, []);
+  return hash;
+}

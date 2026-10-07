@@ -1,0 +1,50 @@
+{
+  "categorias": [
+    {
+      "id": "02193ac3239d",
+      "nome": "Gamer",
+      "descricao": "Computadores de alta performance para jogos e streaming.",
+      "icone": "gamepad",
+      "catalogos": []
+    },
+    {
+      "id": "88125a356504",
+      "nome": "Projetos Especiais",
+      "descricao": "Soluções sob medida para licitações e demandas técnicas.",
+      "icone": "blueprint",
+      "catalogos": [
+        {
+          "id": "fb14c046b169",
+          "titulo": "aaaaaaaaa",
+          "descricao": "aaaaaaaaaa",
+          "url": "https://www.youtube.com/shorts/DHpXWtkXLYM",
+          "arquivo": "/uploads/716a532ff83cf772b993.pdf",
+          "criadoEm": "2026-10-06T23:41:44.808Z"
+        }
+      ]
+    },
+    {
+      "id": "84c5c9e061be",
+      "nome": "Corporativo",
+      "descricao": "Equipamentos para escritórios e ambientes empresariais.",
+      "icone": "building",
+      "catalogos": []
+    },
+    {
+      "id": "491d50d82bf9",
+      "nome": "Educacional",
+      "descricao": "Laboratórios e soluções para instituições de ensino.",
+      "icone": "gradcap",
+      "catalogos": [
+        {
+          "id": "34980edea9ec",
+          "titulo": "saa",
+          "descricao": "",
+          "url": "https://www.youtube.com/shorts/UQbZq4JxqHs",
+          "arquivo": "/uploads/1b92e94c29b0e2dccf17.pdf",
+          "criadoEm": "2026-10-07T00:30:46.857Z"
+        }
+      ]
+    }
+  ]
+}

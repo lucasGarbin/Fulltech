@@ -1,0 +1,20 @@
+{
+  "name": "fulltech-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch --watch-path=server.js --watch-path=auth.js --watch-path=catalogos.js --watch-path=catalogoRules.js --watch-path=env.js --watch-path=errors.js --watch-path=mailer.js --watch-path=store.js --watch-path=templates.js --watch-path=validators.js --watch-path=.env server.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "multer": "^2.0.0",
+    "nodemailer": "^7.0.0"
+  }
+}
